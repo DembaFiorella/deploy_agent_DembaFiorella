@@ -55,3 +55,9 @@ handle_interrupt() {
     exit 130
 }
 
+enable_traps()  {
+    trap 'handle_interrupt SIGINT'  INT
+    trap 'handle_interrupt SIGTSTP' TSTP
+}
+disable_traps() { trap - INT TSTP; }
+
