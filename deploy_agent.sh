@@ -33,3 +33,31 @@ ask_count() {
     echo "$n"
 }
 
+handle_interrupt() {
+    local sig="$1"
+    trap '' INT TSTP
+    echo
+    warn "Deployment interrupted by $sig."
+    if [[ -n "$PROJECT_DIR" && -d "$PROJECT_DIR" ]]; then
+        local zipfile="${PROJECT_DIR}_archive.zip"
+        info "Archiving the incomplete project into $zipfile ..."
+        if zip -rq "$zipfile" "$PROJECT_DIR"; then
+            ok "Archive created: $SCRIPT_DIR/$zipfile"
+            rm -rf "$PROJECT_DIR"
+            ok "Removed incomplete directory $PROJECT_DIR."
+        else
+            err "Could not create the zip archive; leaving $PROJECT_DIR in place."
+        fi
+    else
+        info "Nothing had been created yet, so there is nothing to archive."
+    fi
+    echo "Session closed cleanly."
+    exit 130
+}
+
+enable_traps()  {
+    trap 'handle_interrupt SIGINT'  INT
+    trap 'handle_interrupt SIGTSTP' TSTP
+}
+disable_traps() { trap - INT TSTP; }
+
