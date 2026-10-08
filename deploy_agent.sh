@@ -103,3 +103,25 @@ build_fresh_roster() {
     done
 }
 
+preflight_checks() {
+    info "Running pre-flight checks..."
+    local missing=0 tool f
+    for tool in python3 zip; do
+        if ! command -v "$tool" >/dev/null 2>&1; then
+            err "Required tool '$tool' is not installed or not in PATH."
+            missing=1
+        fi
+    done
+    if (( missing )); then
+        err "Install the missing tool(s) and try again."
+        return 1
+    fi
+    for f in attendance_checker.py assets.csv config.json; do
+        if [[ ! -f "$TEMPLATES_DIR/$f" ]]; then
+            err "Template '$TEMPLATES_DIR/$f' not found."
+            return 1
+        fi
+    done
+    ok "$(python3 --version) and zip found; templates present."
+}
+
