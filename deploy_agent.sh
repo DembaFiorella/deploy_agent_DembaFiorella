@@ -211,3 +211,31 @@ update_thresholds() {
     fi
 }
 
+deploy() {
+    preflight_checks || return 1
+    ask_project_name || return 1
+    local dir="$PROJECT_DIR_CAND"
+    confirm_overwrite "$dir" || return 1
+
+    PROJECT_DIR="$dir"
+    enable_traps
+
+    mkdir -p "$dir/Helpers" "$dir/reports" || {
+        err "Could not create directories."
+        disable_traps; PROJECT_DIR=""
+        return 1
+    }
+    ok "Created $dir/, $dir/Helpers/ and $dir/reports/"
+
+    populate_files "$dir" || return 1
+    set_permissions "$dir"
+    update_thresholds "$dir"
+
+    disable_traps
+    PROJECT_DIR=""
+    ok "Deployment of $dir complete."
+
+    info "Verifying deployment by launching the application..."
+    run_app "$dir"
+}
+
