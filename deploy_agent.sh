@@ -149,3 +149,34 @@ _abort_deploy() {
     PROJECT_DIR=""
 }
 
+populate_files() {
+    local dir="$1" total_rows choice n
+    cp "$TEMPLATES_DIR/attendance_checker.py" "$dir/attendance_checker.py"
+    cp "$TEMPLATES_DIR/config.json"           "$dir/Helpers/config.json"
+
+    total_rows=$(awk 'END{print NR-1}' "$TEMPLATES_DIR/assets.csv")
+    echo "How should the student roster be built?"
+    echo "  A) Copy N students from templates/assets.csv (existing history, total_sessions=5)"
+    echo "  B) Generate a fresh roster (counts start at 0, total_sessions=1)"
+    read -r -p "Choose A or B: " choice
+    case "${choice^^}" in
+        A)
+            n=$(ask_count "How many students to copy" "$total_rows") || { _abort_deploy; return 1; }
+            awk -v n="$((n + 1))" 'NR<=n' "$TEMPLATES_DIR/assets.csv" > "$dir/Helpers/assets.csv"
+            ok "Copied $n students (plus header) from the template."
+            ;;
+        B)
+            n=$(ask_count "How many students to generate" 20) || { _abort_deploy; return 1; }
+            build_fresh_roster "$n" "$dir/Helpers/assets.csv"
+            sed -i.bak 's/\("total_sessions":[[:space:]]*\)[0-9][0-9]*/\11/' "$dir/Helpers/config.json"
+            rm -f "$dir/Helpers/config.json.bak"
+            ok "Generated $n students; set total_sessions to 1."
+            ;;
+        *)
+            err "Invalid choice '$choice'. Expected A or B."
+            _abort_deploy
+            return 1
+            ;;
+    esac
+}
+
