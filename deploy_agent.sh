@@ -125,3 +125,27 @@ preflight_checks() {
     ok "$(python3 --version) and zip found; templates present."
 }
 
+confirm_overwrite() {
+    local dir="$1" ans
+    if [[ -e "$dir" ]]; then
+        warn "Directory '$dir' already exists."
+        read -r -p "Overwrite it? This deletes the existing project. (y/N): " ans
+        if [[ "$ans" =~ ^[Yy]$ ]]; then
+            rm -rf "$dir"
+        else
+            err "Aborted: '$dir' already exists and was not overwritten."
+            return 1
+        fi
+    fi
+    return 0
+}
+
+_abort_deploy() {
+    disable_traps
+    if [[ -n "$PROJECT_DIR" && -d "$PROJECT_DIR" ]]; then
+        rm -rf "$PROJECT_DIR"
+        warn "Removed incomplete directory $PROJECT_DIR."
+    fi
+    PROJECT_DIR=""
+}
+
