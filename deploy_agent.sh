@@ -86,3 +86,20 @@ run_app() {
     return $rc
 }
 
+build_fresh_roster() {
+    local count="$1" out="$2" i
+    local names=("Alice Johnson" "Bob Smith" "Carol Williams" "David Brown" "Eve Davis"
+                 "Frank Miller" "Grace Wilson" "Henry Moore" "Ivy Taylor" "Jack Anderson"
+                 "Karen Thomas" "Leo Jackson" "Mia White" "Noah Harris" "Olivia Martin"
+                 "Paul Thompson" "Quinn Garcia" "Rita Martinez" "Sam Robinson" "Tina Clark")
+    local emails=("alice@example.com" "bob@example.com" "carol@example.com" "david@example.com"
+                  "eve@example.com" "frank@example.com" "grace@example.com" "henry@example.com"
+                  "ivy@example.com" "jack@example.com" "karen@example.com" "leo@example.com"
+                  "mia@example.com" "noah@example.com" "olivia@example.com" "paul@example.com"
+                  "quinn@example.com" "rita@example.com" "sam@example.com" "tina@example.com")
+    echo "Email,Names,Attendance Count,Absence Count" > "$out"
+    for ((i = 0; i < count; i++)); do
+        echo "${emails[$i]},${names[$i]},0,0" >> "$out"
+    done
+}
+
