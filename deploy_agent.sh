@@ -273,3 +273,33 @@ archive_logs() {
     return 0
 }
 
+usage() {
+    cat <<EOF
+Usage: $0 [--deploy | --run | --archive | --help]
+  (no option)  Show the interactive menu
+  --deploy     Deploy a new attendance tracker project
+  --run        Run an already deployed project
+  --archive    Archive reports/*.log of a deployed project
+EOF
+}
+
+menu() {
+    while true; do
+        echo
+        echo "===== Attendance Tracker Deploy Agent ====="
+        echo "1) Deploy the application"
+        echo "2) Run the application"
+        echo "3) Archive the log files"
+        echo "4) Exit"
+        local opt
+        read -r -p "Select an option [1-4]: " opt
+        case "$opt" in
+            1) deploy ;;
+            2) run_app "" ;;
+            3) archive_logs ;;
+            4) echo "Goodbye."; exit 0 ;;
+            *) warn "Invalid option '$opt'." ;;
+        esac
+    done
+}
+
