@@ -151,6 +151,8 @@ work and make a setup process more consistent.
 I will add my walkthrough video link here after recording and
 publishing the demonstration.
 
+Here is my link:
+
 The video will explain my implementation, show a live attendance
 session, and demonstrate the deployment interruption behavior.
 
