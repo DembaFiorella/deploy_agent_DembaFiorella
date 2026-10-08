@@ -188,3 +188,26 @@ set_permissions() {
     ls -l "$dir/attendance_checker.py" "$dir/Helpers/config.json" | awk '{print "        " $1 "  " $NF}'
 }
 
+update_thresholds() {
+    local dir="$1" upd warn_v fail_v
+    read -r -p "Update the attendance alert thresholds? (y/N): " upd
+    if [[ "$upd" =~ ^[Yy]$ ]]; then
+        read -r -p "Warning threshold % [75]: " warn_v;  warn_v="${warn_v:-75}"
+        read -r -p "Failure threshold % [50]: " fail_v;  fail_v="${fail_v:-50}"
+        if [[ ! "$warn_v" =~ ^[0-9]+$ || ! "$fail_v" =~ ^[0-9]+$ ]] \
+           || (( warn_v > 100 || fail_v > 100 || fail_v >= warn_v )); then
+            warn "Invalid values (need integers 0-100 with failure < warning). Keeping defaults."
+        else
+            sed -i.bak \
+                -e "s/\(\"warning\":[[:space:]]*\)[0-9][0-9]*/\1${warn_v}/" \
+                -e "s/\(\"failure\":[[:space:]]*\)[0-9][0-9]*/\1${fail_v}/" \
+                "$dir/Helpers/config.json"
+            rm -f "$dir/Helpers/config.json.bak"
+            chmod 600 "$dir/Helpers/config.json"
+            ok "Thresholds updated: warning=${warn_v}, failure=${fail_v}"
+        fi
+    else
+        info "Keeping default thresholds."
+    fi
+}
+
