@@ -180,3 +180,11 @@ populate_files() {
     esac
 }
 
+set_permissions() {
+    local dir="$1"
+    chmod +x  "$dir/attendance_checker.py"
+    chmod 600 "$dir/Helpers/config.json"
+    ok "Permissions set:"
+    ls -l "$dir/attendance_checker.py" "$dir/Helpers/config.json" | awk '{print "        " $1 "  " $NF}'
+}
+
