@@ -6,3 +6,8 @@ cd "$SCRIPT_DIR" || exit 1
 
 PROJECT_DIR=""
 
+info()  { echo "[INFO]  $*"; }
+ok()    { echo "[ OK ]  $*"; }
+warn()  { echo "[WARN]  $*"; }
+err()   { echo "[ERROR] $*" >&2; }
+
