@@ -303,3 +303,11 @@ menu() {
     done
 }
 
+case "${1:-}" in
+    "")        menu ;;
+    --deploy)  deploy ;;
+    --run)     run_app "" ;;
+    --archive) archive_logs ;;
+    -h|--help) usage ;;
+    *)         err "Unknown option '$1'."; usage; exit 1 ;;
+esac
