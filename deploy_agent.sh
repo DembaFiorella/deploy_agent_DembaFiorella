@@ -239,3 +239,37 @@ deploy() {
     run_app "$dir"
 }
 
+archive_logs() {
+    ask_project_name || return 1
+    local dir="$PROJECT_DIR_CAND"
+    if [[ ! -d "$dir" ]]; then
+        err "Project directory '$dir' not found."
+        return 1
+    fi
+
+    local ts archived=0
+    ts="$(date +%Y%m%d_%H%M%S)"
+    local logs=(attendance absent)
+    local name src dest_dir dest
+
+    for name in "${logs[@]}"; do
+        src="$dir/reports/${name}.log"
+        dest_dir="$dir/archives/$name"
+        dest="$dest_dir/${name}_${ts}.log"
+        if [[ -f "$src" ]]; then
+            mkdir -p "$dest_dir" && cp "$src" "$dest" \
+                && { ok "Archived ${name}.log -> $dest"; archived=$((archived + 1)); } \
+                || err "Failed to archive ${name}.log"
+        else
+            info "No ${name}.log found in $dir/reports/ - skipping."
+        fi
+    done
+
+    if (( archived == 0 )); then
+        warn "No logs were archived. Run the application first (--run)."
+    else
+        ok "$archived log file(s) archived."
+    fi
+    return 0
+}
+
