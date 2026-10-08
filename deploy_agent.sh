@@ -61,3 +61,28 @@ enable_traps()  {
 }
 disable_traps() { trap - INT TSTP; }
 
+run_app() {
+    local dir="$1"
+    if [[ -z "$dir" ]]; then
+        ask_project_name || return 1
+        dir="$PROJECT_DIR_CAND"
+    fi
+    if [[ ! -d "$dir" ]]; then
+        err "Project directory '$dir' not found. Deploy it first (--deploy)."
+        return 1
+    fi
+    if [[ ! -f "$dir/attendance_checker.py" ]]; then
+        err "'$dir/attendance_checker.py' is missing; the deployment looks incomplete."
+        return 1
+    fi
+    info "Starting the application in $dir ..."
+    ( cd "$dir" && python3 attendance_checker.py )
+    local rc=$?
+    if (( rc == 0 )); then
+        ok "Application exited normally."
+    else
+        warn "Application exited with status $rc."
+    fi
+    return $rc
+}
+
